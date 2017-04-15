@@ -1,0 +1,72 @@
+Facebook Flux中引入了四个概念： Dispatcher、 Actions、Stores、Views（Controller-Views）
+在这个例子中，TodoApp就是一个Controller-View，它监听到TodoStore的数据变化后，便会重新从TodoStore中获取数据，然后通过调用组件setState()方法，触发render()方法的执行，从而得到UI的更新（自上而下的渲染）。
+
+Reflux保留了Facebook Flux中原有的三个概念：Actions、Stores、Views（Controller-Views），去除了Dispatcher，如果要用一张图表示的话，就是这样：
+
+Action，Store和View三者的角色分配以及分工合作，如下：
+Action 是一个Publisher，负责消息的分发，一般是由用户行为（User Interaction），或是Web API触发。
+Store 不仅是一个Publisher，还是一个Subscriber（或者叫做Listener），作为Subscriber，负责监听Action的触发；作为Publisher，则负责通知View更新UI。
+View 是一个Subscriber，负责监听Store的数据变化，做到及时更新UI。
+
+：Reflux抽取出两个模块：PublisherMethods 和 ListenerMethods，
+PublisherMethods中包括：trigger、triggerAsync等消息发布方法。
+
+ListenerMethods中就包括listenTo、listenToMany等消息订阅方法
+
+Action 创建
+Reflux.createAction()或者Reflux.createActions()来
+
+// 拥有配置
+var action = Reflux.createAction({
+    actionName: 'addItem',  // 其实这个actionName并没有什么用，可不传
+    asyncResult: true,
+    sync: false,
+    children: ['success']
+});
+
+// 简化
+var action = Reflux.createAction('addItem')
+
+// 或者匿名
+var addItemAction = Reflux.createAction();
+sync： 设置为true，指定action的默认触发方式为同步
+children： 用于创建子Action（主要是用在异步操作的时候，后面会讲到）
+asyncResult：设置为true时，自动创建两个名为'completed'和'failed'的子Action（可以认为是设置子Action的一个快捷方式）
+
+2.通过Reflux.createActions()创建多个Action，即Actions集合，代码如下
+
+var actions = Reflux.createActions(['addItem', 'deleteItem']);
+
+// 个别action配置
+var actions = Reflux.createActions(['addItem', {
+    deleteItem: {
+        asyncResult: true,
+        children: ['success'],
+    },
+    updateItem: {...}
+}]);
+
+// 也可以这样
+var actions = Reflux.createActions({
+    addItem: {},
+    deleteItem: {
+        asyncResult: true,
+        children: ['success']
+    },
+    updateItem: {...}
+});
+注意：Reflux.createActions()返回的是一个普通的对象，即Actions集合，所以Action触发时，需要指定actionName，就像这样：
+actions.addItem({...});
+actions.deleteItem();
+
+----listen 消息订阅
+var addAction = Reflux.createAction();
+
+addAction.listen(function (url) {
+    // 默认上下文this是addAction
+    $.ajax(url).done(function () {
+        // todo: save to store
+    });
+});
+
+addAction('/xxx/add');

@@ -1,0 +1,36 @@
+state存在组件内部，管理组件内部状态
+定义state三种方法
+es5 getInitialState:function(){}
+es6 state
+    constructor this.state={}
+
+设置状态
+this.setState//改变已有值
+this.replaceState//清空已有，并替换
+
+初始状态
+es5
+-getInitialState:function(){}
+es6
+-state = {}
+-constructor this.state = {}
+
+props
+顶层主机往下渲染，父组件到子组件
+设置初始props
+es5getDefaultProps:function(){return{status:'haha'}}
+es6
+直接在组件内部设置const defaultProps={status:'haha'}
+然后在组件外部（同文件内） spreadDemo.defaultProps = defaultProps
+或者简写spreadDemo.defaultProps = {status:'haha'}
+
+传递props 在父组件内
+属性定义
+<Child status ='haha'/>
+spread方法
+const obj ={status:'haha',type:'b'}
+<Child status ={...obj}/>
+
+improt React,{Component,PropTypes}from 'react';
+propType 代码规范，接口规范
+spreadDemo.defaultProps = {status:React.PropTypes.string}
